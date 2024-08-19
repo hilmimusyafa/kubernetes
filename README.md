@@ -1,2 +1,3 @@
-# kubernetes
-A simple tutorial, documentations, or handbook for learning about Kubernetes. It made as Personal Notebook for learning about Kubernetes.
+# Kubernetes Tutorial
+
+This is a repository for learning Kubernetes, where you will learn basic to advanced concepts in container orchestration using Kubernetes. This repository also use for Writer's Personal Handbook while learning about Kubernetes.
