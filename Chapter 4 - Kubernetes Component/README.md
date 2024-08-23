@@ -11,14 +11,20 @@ Like the previous material, nodes already have kubelet, kube-proxy, and containe
 Well, as explained earlier, there is no need to know where Kubernetes places the node, because it is already the task of Kubernetes, only need to determine how many nodes are working on Kubernetes. If for example 2 nodes have been run, it turns out to be almost full or high traffic, then simply add a node without having to bother with manual settings.
 
 To see the nodes that have been added to minukube Type the following command after starting Minikube :
-  ```bash
-  $ kubectl get node
-  ```
-  For details, just type the command:
-  ```bash
-  $ kubectl describe node (nodename)
-  ```
-  > *Replace (nodename) with the existing node name without any brackets.*
+```bash
+$ kubectl get node
+```
+For details, just type the command:
+```bash
+$ kubectl describe node (nodename)
+```
+> *Replace (nodename) with the existing node name without any brackets.*
+
+And then it will outputed like this  : 
+```
+NAME       STATUS   ROLES           AGE   VERSION
+minikube   Ready    control-plane   47m   v1.30.0
+```
 
 ### 4.2 Pod
 
@@ -40,8 +46,15 @@ $ kubectl get pod
 
 To view Pod details:
 
-```
+```bash
 $ kubectl describe pod (podname)
 ```
 
 > *Replace (podname) with the existing node name without any brackets.*
+
+So, it will outputed like this : 
+```
+hilmi@minkube:~$ kubectl get pod
+No resources found in default namespace.
+```
+Yeah, because i didn't make Pod it will outputed `No resources found in default namespace.`
