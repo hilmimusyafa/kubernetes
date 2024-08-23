@@ -54,7 +54,7 @@ This method is actually for the case of Windows users who want to use Minkube po
    
 2. Also download ISO Image of Linux OS
 
-   Here, for the Linux that you want to install, you can do it as you wish. But from the author, I will use Ubuntu Server 24.04 LTS as well as the tutorial in the future. Please be able to adjust.
+   Here, for the Linux that you want to install, you can do it as you wish. But from the author, I will use Debian Server 12 as well as the tutorial in the future. Please be able to adjust.
    
 3. Install Virtual Machine with the downloaded Linux Image, install it in VirtualBox with the configuration as below : 
 
@@ -62,8 +62,10 @@ This method is actually for the case of Windows users who want to use Minkube po
     - Memory : 3 GB
     - HardDrive : 25 GB
     - Network : 1x NAT and 1x Host Only
+    - SSH Enabled
     
     The above configuration is based on the author, if there are additional or different configurations, you can adjust them.
+    > *If you done with Installing Virtual Machine, you can use SSH so you can copy paste the command bassed on this tutorial*
     
 4. If Linux is installed and ready, do an update and upgrade with the following command: 
 
@@ -75,31 +77,31 @@ This method is actually for the case of Windows users who want to use Minkube po
     $ sudo reboot
     ```
 
-5. Install Docker to help Kubernetes
+5. Install Docker to support Kubernetes
 
     ```bash
     $ sudo apt install ca-certificates curl gnupg wget apt-transport-https -y
     $ sudo install -m 0755 -d /etc/apt/keyrings
-    $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-    $ sudo chmod a+r /etc/apt/keyrings/docker.gpg
+    $ sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+    $ sudo chmod a+r /etc/apt/keyrings/docker.asc
     $ echo \
-      "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-      "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
-      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
+        $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+        sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
     $ sudo apt update
     ```
     Install Docker with the latest version
-    ```
+    ```bash
     $ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
     ```
     Add your local user to docker group so that your local user run docker commands without sudo.
 
-    ```
+    ```bash
     $ sudo usermod -aG docker $USER
     $ newgrp docker
     ```
     Verify docker service is running.
-    ```
+    ```bash
     $ sudo systemctl status docker
     ```
 
@@ -107,14 +109,14 @@ This method is actually for the case of Windows users who want to use Minkube po
 
     To download and install minikube binary, run following commands.
 
-    ```
+    ```bash
     $ curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
     $ sudo install minikube-linux-amd64 /usr/local/bin/minikube
     ```
 
     Check minikube version.
 
-    ```
+    ```bash
     $ minikube version
     ```
 
@@ -122,20 +124,20 @@ This method is actually for the case of Windows users who want to use Minkube po
 
     Kubectl is a command line tool, used to interact with your Kubernetes cluster.
 
-    ```
+    ```bash
     $ curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
     ```
 
     Next, set the executable permission on it and move to /usr/local/bin
 
-    ```
+    ```bash
     $ chmod +x kubectl
     $ sudo mv kubectl /usr/local/bin/
     ```
 
     Verify the kubectl version.
 
-    ```
+    ```bash
     $ kubectl version -o 
     ```
 
@@ -143,11 +145,15 @@ This method is actually for the case of Windows users who want to use Minkube po
 
     Now that Minikube is installed, start a Kubernetes cluster using the following command.
 
-    ```
+    ```bash
     $ minikube start --driver=docker
     ```
+    If you firstly in Minukube, it will downloading some file, you can wait until done : 
+    
+    ![Screenshot 2024-08-23 212103](https://hackmd.io/_uploads/HJTKQ7LiA.png)
 
     After minikube has started, verify the status of your cluster.
-    ```
+    ```bash
     $ minikube status
     ```
+The Kubernetes Virtual Machine is ready to use.
