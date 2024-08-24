@@ -5,8 +5,8 @@ metadata:
   labels:
     label-key1: label-value1
   annotations:
-    annotation-key1: annotation-value
-    annotation-key2: very-long-annotation-value
+    annotation-key1: "annotation-value"
+    annotation-key2: "very-long-annotation-value"
 spec:
   containers:
     - name: container-name
