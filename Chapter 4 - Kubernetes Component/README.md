@@ -452,8 +452,8 @@ metadata:
   labels:
     label-key1: label-value1
   annotations:
-    annotation-key1: annotation-value
-    annotation-key2: very-long-annotation-value
+    annotation-key1: "annotation-value"
+    annotation-key2: "very-long-annotation-value"
 spec:
   containers:
     - name: container-name
@@ -471,19 +471,193 @@ metadata:
   name: nginx-with-annotation
   labels:
     team: product
-    version: 1.0
+    version: "1.0"
     environment: development
   annotations:
-    description: Ini adalah aplikasI yang dibuat oleh tim product
-    apapun: Apapun itu...
+    description: "Ini adalah aplikasi yang dibuat oleh tim product"
+    apapun: "Apapun itu..."
 spec:
   containers:
-   - name: nginx
-     image: nginx
-     ports:
-      - containerPort: 80
+    - name: nginx
+      image: nginx
+      ports:
+        - containerPort: 80
 ```
 To see it, run as before:
-```
+```bash
 $ kubectl describe pod (podname)
 ```
+
+> *Ganti podname dengan nama node yang ada tanpa ada tanda kurung.*
+
+Lets try :
+
+```bash
+$ kubectl create -f 4.4.2-nginx-pod-annotation.yaml
+pod/nginx-with-annotation created
+$ kubectl describe pod nginx-with-annotation
+```
+
+Then it will come out like this: 
+```
+Name:             nginx-with-annotation
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Sat, 24 Aug 2024 17:26:33 +0700
+Labels:           environment=development
+                  team=product
+                  version=1.0
+Annotations:      apapun: Apapun itu...
+                  description: Ini adalah aplikasi yang dibuat oleh tim product
+Status:           Running
+IP:               10.244.0.10
+...
+```
+You can also add annotations directly, same like label, use with this command:
+```
+$ kubectl annontate pod (podname) (key=value)
+```
+and to change with this command:
+```
+$ kubectl annontate pod (podname) (key=value) --overwrite
+```
+
+### 4.5 Namespace
+
+Namespaces in Kubernetes are a way to share cluster resources between multiple users, teams, or projects. So the case of having the same resources can be resolved.
+
+When to Use Namespaces?
+- When resources in Kubernetes are too many.
+- When you need to separate resources for multi-tenant, team, or environment.
+- The name of the resources can be the same if they are in different namespaces.
+
+To see the namespace use this command:
+
+```bash
+$ kubectl get namespaces
+```
+or
+```bash
+$ kubectl get namespace
+```
+or
+```bash
+$ kubectl get ns
+```
+Then it will come out with the output:
+```
+NAME              STATUS   AGE
+default           Active   20h
+kube-node-lease   Active   20h
+kube-public       Active   20h
+kube-system       Active   20h
+```
+
+As an example, we will try to see the Namespace on the Pod :
+```bash
+$ kubectl get pod --namespace (namespacename)
+```
+or
+```bash
+$ kubectl get pod -n (namespacename)
+```
+> *Replace namespacename with the name of the namespace you want to search for without the brackets.*
+
+Direct example of the code :
+```bash
+$ kubectl get pod -n default
+```
+> *default in namespace is the basic value if the value is not specified by the user*
+
+Then it will produce the output: 
+```
+NAME                    READY   STATUS    RESTARTS   AGE
+nginx-with-annotation   1/1     Running   0          8m
+```
+
+To create a namespace on Kubernetes, here is a template for a namespace:
+4.5.1-template-namespace.yaml
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nama-namespace
+```
+1. **kind: Namespace** ; identify that a namespace type will be created.
+2. **metadata: name-namespace** ; determines what the space will be named.
+
+For Example : 
+4.5.2-finance-namespace.yaml
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: finance
+```
+To enter namespace yaml into Kubernetes use the usual command : 
+```
+$ kubectl create -f (file.yaml)
+```
+> *Replace (file.yaml) with the name of the namespace you want to search for without the brackets.*
+
+For Example : 
+```
+$ kubectl create -f 4.5.2-finance-namespace.yaml
+namespace/finance created
+$ kubectl get namespaces
+NAME              STATUS   AGE
+default           Active   20h
+finance           Active   37s
+kube-node-lease   Active   20h
+kube-public       Active   20h
+kube-system       Active   20h
+```
+To create a Pod in a Namespace, you can do the following: 
+```bash
+$ kubectl create -f (yamlpod.yaml) --namespace (namespacename)
+```
+> *Replace (yamlpod.yaml), (namespacename) with the name of the namespace you want to search for without the brackets.*
+For Example : 
+```bash
+$ kubectl create -f 4.2.2.2-nginx-pod.yaml --namespace finance
+pod/nginx-pod created
+```
+If you search without namespace name, it will outputed like this : 
+```
+No resources found in default namespace.
+```
+Because nginx-pod in finance namespace : 
+```
+$ kubectl get pod -n finance
+NAME        READY   STATUS    RESTARTS   AGE
+nginx-pod   1/1     Running   0          4m9s
+$ kubectl describe pod -n finance
+Name:             nginx-pod
+Namespace:        finance
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Sat, 24 Aug 2024 17:53:13 +0700
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.11
+```
+And done, nginx-pod in finance namespace.
+
+Things to note about namespaces:
+1. Pods with the same name can run as long as they are in different namespaces.
+2. Namespaces are not a way to isolate resources.
+3. Even though they are in different namespaces, pods can still communicate with other pods in different namespaces.
+
+Unfortunately, if you already have a Pod and want to put it in a namespace, you can't do it directly, you have to delete the Pod or directly add a new one.
+
+Deleting a Namespace
+
+```
+$ kubectl delete namespace (namespacename)
+```
+
+> *Replace namespacename with the name of the namespace you want to search for without the brackets.*
