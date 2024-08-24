@@ -215,3 +215,135 @@ To create a pod, make sure you do it in the following steps:
       Normal  Started    24m   kubelet            Started container nginx
     ```
     Yeah, its full of description and info that need it.
+    
+#### 4.2.3 Accessing Pod
+
+In certain cases, it is necessary to check whether the pod is running properly or not. To check the Pod, use the access method with the command: 
+   
+```bash
+$ kubectl port-forward (podname) (portaccess:podport)
+```
+
+> *Replace podname, portaccess, and podport with the existing node names without brackets. portaccess is the port that will be accessed through your device, podport is the port running in the Container according to the configuration*
+
+For example, to access a previously created port : 
+    
+```bash
+$ kubectl port-forward nginx-pod 8888:80
+```
+It will outputed like this : 
+```
+Forwarding from 127.0.0.1:8888 -> 80
+Forwarding from [::1]:8888 -> 80
+```
+And if you check use cat command (`$ curl 127.0.0.1:8888`) it wil outputed nginx hello like this : 
+
+```
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+```
+
+> **
+> 
+#### 4.2.4 Deleting Pod
+
+For certain cases, sometimes it is necessary to delete Pods, the way to delete Pods can use the following method:
+    
+```
+$ kubectl delete pod (podname)
+```
+or 
+```
+$ kubectl delete pod (podname-1) (podname-2) (podname-3)
+```
+if there are many pods to delete, or
+```
+$ kubectl delete pod -l (key=value)
+```
+If based on a specific label key, and finally, if you want to delete what is based on namespace, you can use : 
+```
+$ kubectl delete pod -all --namespace (namespacename)
+```   
+    
+Just adjust it for what kind of use.
+    
+### 4.3 Label
+
+Labels in Kubernetes are useful for marking Pods, so that Pods will be organized, Pods will also be clearer because there is additional information in the Pod Label.
+
+Labels are also not only for Pods, but all resources in Kubernetes, such as Replication Controllers, Replica Sets, Services, etc.
+
+Here is an example of a Pod template with labels : 
+
+4.3.1-template-pod-label.yaml 
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-name
+  labels:
+    label-key1: label-value1
+    label-key2: label-value2
+    label-key3: label-value3
+spec:
+  containers:
+    - name: container-name
+      image: image-name
+      ports:
+        - containerPort: 80
+```
+Actually it's the same, but the only difference is that there are additional labels, and here we will use nginx as before :
+
+4.3.2-nginx-pod-labeled.yaml 
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  labels:
+    team: finance
+    version: 1.7.2
+    environment: production
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    ports:
+      - containerPort: 80
+```
+Here to write free labels as needed and as efficient as possible.
+
+To insert Pods is the same as before:
+
+```bash
+$ kubectl create -f 4.3.2-nginx-pod-labeled.yaml 
+```
+
+> *Make sure the metadata name is different from the previously created Pod, or differentiate the Pod metadata name in the yaml so that it can be added*
+
+To see previously created labels, use the command:
+```bash
+$ kubectl get pod --show-labels
+```
