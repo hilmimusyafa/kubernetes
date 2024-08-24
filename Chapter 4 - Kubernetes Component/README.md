@@ -156,7 +156,7 @@ To create a pod, make sure you do it in the following steps:
 
     And the example this : 
     ```
-    $ kubectl describe pod 4.2.2.2-nginx-pod.yaml 
+    $ kubectl describe pod nginx-pod
     ```
 
     And it will outputed like this : 
@@ -286,8 +286,17 @@ If based on a specific label key, and finally, if you want to delete what is bas
 $ kubectl delete pod -all --namespace (namespacename)
 ```   
     
-Just adjust it for what kind of use.
-    
+Just adjust it for what kind of use. Here's some example : 
+
+```
+$ kubectl delete pod nginx-pod
+```
+and the nginx-pod will deleted : 
+
+```
+hilmi@minkube:~/kubernetes/Chapter 4 - Kubernetes Component$ kubectl delete pod nginx-pod
+pod "nginx-pod" deleted
+```
 ### 4.3 Label
 
 Labels in Kubernetes are useful for marking Pods, so that Pods will be organized, Pods will also be clearer because there is additional information in the Pod Label.
@@ -340,10 +349,141 @@ To insert Pods is the same as before:
 ```bash
 $ kubectl create -f 4.3.2-nginx-pod-labeled.yaml 
 ```
-
-> *Make sure the metadata name is different from the previously created Pod, or differentiate the Pod metadata name in the yaml so that it can be added*
+> *Make sure the metadata name is different from the previously created Pod, or differentiate the Pod metadata name in the yaml so that it can be added.*
+>
+> *If happen like this : 
+> Error from server (AlreadyExists): error when creating "4.3.2-nginx-pod-labeled.yaml": pods "nginx-pod" already exists*
+> You must delete the same Pod or use diffrent name in yaml configuration file
 
 To see previously created labels, use the command:
 ```bash
 $ kubectl get pod --show-labels
+```
+Sehingga akan beroutput : 
+```
+NAME        READY   STATUS    RESTARTS   AGE   LABELS
+nginx-pod   1/1     Running   0          13s   environment=production,team=finance,version=1.7.2
+```
+You can also use descibe : 
+```
+$ kubectl describe pod nginx-pod
+```
+And the output, it will diffrent : 
+```
+Name:             nginx-pod
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Sat, 24 Aug 2024 09:59:17 +0700
+Labels:           environment=production
+                  team=finance
+                  version=1.7.2
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.8
+...
+```
+It is also possible to add or change labels in Pods directly, but this is not recommended. Here is the command to add:
+```bash
+$ kubectl label pod (podname) (key=value)
+```
+Meanwhile, to change, here is the command: 
+```bash
+$ kubectl label pod (podname) (key=value) --overwrite
+```
+Here's a quick example, to add a flag:
+```bash
+$ kubectl label pod nginx-pod validate=false
+```
+And an example of a command to change it: 
+```bash
+$ kubectl label pod nginx-pod validate=true --overwrite
+```
+And the output : 
+```
+$ kubectl label pod nginx-pod validate=false
+pod/nginx-pod labeled
+$ kubectl get pod --show-labels
+NAME        READY   STATUS    RESTARTS   AGE   LABELS
+nginx-pod   1/1     Running   0          14m   environment=production,team=finance,validate=false,version=1.7.2
+$ kubectl label pod nginx-pod validate=true --overwrite
+pod/nginx-pod labeled
+$ kubectl get pod --show-labels
+NAME        READY   STATUS    RESTARTS   AGE   LABELS
+nginx-pod   1/1     Running   0          14m   environment=production,team=finance,validate=true,version=1.7.2
+```
+As you can see, the label is change, as the command .
+
+Maybe you are thinking right now whether the label is just like that? Of course not, the labels that we have written or added can be searched, this is for ease of searching among other pods, here's how:
+
+```bash
+$ kubect1 get pods -1 key
+$ kubect1 get pods -1 key=value
+$ kubect1 get pods -1 '!key'
+$ kubectl get pods -1 key! = value
+$ kubectl get pods -1 'key in (value1, value2)'
+$ kubectl get pods -1 'key notin (value1, value2)
+```
+Example for searching labels:
+```bash
+$ kubectl get pods -l environment
+$ kubect1 get pods -1 environment=production
+$ kubect1 get pods -1 '!environment'
+$ kubectl get pods -1 environment! = production
+$ kubectl get pods -1 'environment in (production, development)'
+$ kubectl get pods -1 'key notin (production, development)
+```
+
+### 4.4 Annotation
+
+Annotation is similar to Label, only cannot be filtered or queried like label, usually used to add additional information in large sizes, only holds information up to 256kB.
+
+Annotation because of its small memory is usually only for adding information, such as Documentation, Description, etc.
+
+Here is an example of an Annotation template on Kubernetes: 
+
+4.4.1-template-pod-annotation.yaml
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-name
+  labels:
+    label-key1: label-value1
+  annotations:
+    annotation-key1: annotation-value
+    annotation-key2: very-long-annotation-value
+spec:
+  containers:
+    - name: container-name
+      image: image-name
+      ports:
+        - containerPort: 80
+```
+The only difference is that annotations are added, here is an example:
+
+4.4.2-nginx-pod-annotation.yaml
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-with-annotation
+  labels:
+    team: product
+    version: 1.0
+    environment: development
+  annotations:
+    description: Ini adalah aplikasI yang dibuat oleh tim product
+    apapun: Apapun itu...
+spec:
+  containers:
+   - name: nginx
+     image: nginx
+     ports:
+      - containerPort: 80
+```
+To see it, run as before:
+```
+$ kubectl describe pod (podname)
 ```
