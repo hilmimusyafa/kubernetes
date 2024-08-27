@@ -18,4 +18,4 @@ spec:
           restartPolicy: Never
           containers:
             - name: nodejs-cronjob
-              image
+              image: khannedy/nodejs-job
