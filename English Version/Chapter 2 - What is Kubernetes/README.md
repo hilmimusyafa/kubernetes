@@ -1,6 +1,6 @@
 ## Chapter 2 : What is Kubernetes
 
-### 2.1 Introduction to Kubernetes
+### 2.1 Introduction Kubernetes
 
 Yes, according to the reading that has been shown previously. Kubernetes is one of the Open Source applications for automation deployment, scaling, and management of container-based applications.
 
